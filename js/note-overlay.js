@@ -1,6 +1,6 @@
 /**
- * note-overlay.js - 页面元素批注工具
- * 通过在HTML header中引入此脚本，为页面添加右侧批注侧栏
+ * note-overlay.js - 页面元素注释工具
+ * 通过在HTML header中引入此脚本，为页面添加右侧注释侧栏
  *
  * 使用方式：
  * <script src="./js/note-overlay.js"></script>
@@ -11,21 +11,6 @@
     if (window.__noteOverlayStarted) return;
     window.__noteOverlayStarted = true;
     'use strict';
-
-    // file:// 协议（直接双击打开 HTML）下浏览器禁止网页读取本地 JSON，批注功能无法启用，提示后退出。
-    if (window.location.protocol === 'file:') {
-        const showFileTip = function() {
-            if (document.getElementById('note-overlay-file-tip')) return;
-            const tip = document.createElement('div');
-            tip.id = 'note-overlay-file-tip';
-            tip.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999999;background:#FDF6EC;border-bottom:1px solid #FAECD8;color:#E6A23C;font:13px/1.6 "Helvetica Neue",Helvetica,"PingFang SC","Microsoft YaHei",Arial,sans-serif;padding:10px 16px;text-align:center;box-sizing:border-box;';
-            tip.textContent = '当前页面是直接双击打开的（file:// 协议），浏览器安全策略禁止读取本地数据文件，批注功能无法启用。请通过本地服务（npm start 或 start.bat）或任意静态 HTTP 服务访问本页面。';
-            document.body.appendChild(tip);
-        };
-        if (document.body) showFileTip();
-        else document.addEventListener('DOMContentLoaded', showFileTip);
-        return;
-    }
 
     // 脚本/数据加载较慢时先隐藏原始页面，避免页面以未缩放布局闪现。
     const startupVisibility = document.body && document.body.style.visibility;
@@ -44,7 +29,7 @@
     const WIDTH_KEY = 'note_overlay_sidebar_width'; // 永久有效
     const CARD_HEIGHT_KEY = 'note_overlay_card_height'; // 卡片等高设置，永久有效
     const OPEN_TTL = 7 * 24 * 3600 * 1000; // 展开状态缓存 7 天
-    const MARKER_IDLE = 3000; // 鼠标不动 3 秒后序号渐出
+    const MARKER_IDLE = 5000; // 鼠标不动 3 秒后序号渐出
 
     // 主色（Element UI 蓝，用于大部分 UI）
     const ACCENT = '#409EFF';
@@ -184,7 +169,7 @@
                 transform-origin: top left;
             }
             #note-overlay-preview-frame { position: relative; margin: 0; background: transparent; border: 0; box-shadow: none; overflow: visible; z-index: 0; }
-            #note-overlay-preview-frame.note-overlay-preview-active { margin: 24px auto; background: #fff; border: 1px solid #dfe6ef; border-radius: 14px; box-shadow: 0 14px 34px rgba(25,42,70,.14); overflow-y: auto; overflow-x: hidden; isolation: isolate; transform: translateZ(0); }
+            #note-overlay-preview-frame.note-overlay-preview-active { margin: 24px auto; border: 1px solid #dfe6ef; border-radius: 14px; box-shadow: 0 14px 34px rgba(25,42,70,.14); overflow-y: auto; overflow-x: hidden; isolation: isolate; transform: translateZ(0); }
             #note-overlay-preview-frame.note-overlay-preview-active .site-header {
                 position: sticky !important;
                 top: 0 !important;
@@ -206,7 +191,7 @@
                 font-size: 14px;
                 color: ${COLORS.textRegular};
                 z-index: 999999;
-                border-radius: 6px 0 0 6px;
+                border-radius: 10px 0 0 10px;
                 overflow-y: auto;
                 overflow-x: hidden;
             }
@@ -233,7 +218,7 @@
                 background: rgba(64, 158, 255, 0.30);
             }
 
-            /* 切换按钮（批注） */
+            /* 切换按钮（注释） */
             #note-overlay-toggle {
                 position: fixed;
                 top: 108px;
@@ -289,7 +274,7 @@
                 right: var(--note-overlay-sbw);
             }
 
-            /* 批注数徽标（折叠时显示，15 秒弹跳一次） */
+            /* 注释数徽标（折叠时显示，15 秒弹跳一次） */
             #note-overlay-badge {
                 position: fixed;
                 right: 22px;
@@ -429,7 +414,7 @@
                 border: 1px dashed ${COLORS.borderBase};
             }
 
-            /* 批注卡片：圆角弥散阴影，现代轻盈 */
+            /* 注释卡片：圆角弥散阴影，现代轻盈 */
             .note-overlay-card {
                 background: ${COLORS.bgWhite};
                 border: 1px solid ${COLORS.borderLighter};
@@ -582,7 +567,7 @@
                 overflow: hidden;
             }
 
-            /* 元素上的批注序号标记（橙色，渐出） */
+            /* 元素上的注释序号标记（橙色，渐出） */
             .note-overlay-marker {
                 position: absolute;
                 width: 18px;
@@ -764,7 +749,7 @@
                 gap: 8px;
             }
 
-            /* 鼠标旁浮窗（批注输入 / 删除确认） */
+            /* 鼠标旁浮窗（注释输入 / 删除确认） */
             .note-overlay-pop {
                 position: fixed;
                 z-index: 9999995;
@@ -980,13 +965,13 @@
         // 切换按钮
         const toggleBtn = document.createElement('button');
         toggleBtn.id = 'note-overlay-toggle';
-        toggleBtn.textContent = '批注';
-        toggleBtn.title = '展开批注栏';
+        toggleBtn.textContent = '注释';
+        toggleBtn.title = '展开注释栏';
         // 数据加载完成前保持隐藏，避免无后端空页面初始化时短暂闪现。
         toggleBtn.style.display = 'none';
         document.body.appendChild(toggleBtn);
 
-        // 批注数徽标
+        // 注释数徽标
         const badge = document.createElement('div');
         badge.id = 'note-overlay-badge';
         document.body.appendChild(badge);
@@ -994,7 +979,7 @@
         // 布局模式切换按钮（随展开按钮一起动）
         const modeBtn = document.createElement('button');
         modeBtn.id = 'note-overlay-mode-btn';
-        // 数据和当前页面批注数量确定前保持隐藏，避免切页时先显示再被折叠逻辑收起。
+        // 数据和当前页面注释数量确定前保持隐藏，避免切页时先显示再被折叠逻辑收起。
         modeBtn.style.display = 'none';
         document.body.appendChild(modeBtn);
         modeBtn.addEventListener('click', toggleLayoutMode);
@@ -1005,16 +990,16 @@
         resizer.title = '拖拽调整侧栏宽度';
         document.body.appendChild(resizer);
 
-        // 鼠标旁浮窗：批注输入
+        // 鼠标旁浮窗：注释输入
         const pop = document.createElement('div');
         pop.id = 'note-overlay-pop';
         pop.className = 'note-overlay-pop';
         pop.innerHTML = `
             <div class="note-overlay-pop-title-row">
-                <div class="note-overlay-pop-title" id="note-overlay-pop-title">添加批注</div>
+                <div class="note-overlay-pop-title" id="note-overlay-pop-title">添加注释</div>
                 <button class="note-overlay-pop-zoom" id="note-overlay-pop-zoom" title="放大编辑">${ICONS.zoom}</button>
             </div>
-            <textarea id="note-overlay-pop-textarea" placeholder="输入批注内容..."></textarea>
+            <textarea id="note-overlay-pop-textarea" placeholder="输入注释内容..."></textarea>
             <div class="note-overlay-pop-actions">
                 <button class="note-overlay-btn" id="note-overlay-pop-cancel">取消</button>
                 <button class="note-overlay-btn note-overlay-btn-primary" id="note-overlay-pop-submit">确定</button>
@@ -1028,7 +1013,7 @@
         confirmPop.className = 'note-overlay-pop';
         confirmPop.style.width = '220px';
         confirmPop.innerHTML = `
-            <div class="note-overlay-pop-title">删除此批注？</div>
+            <div class="note-overlay-pop-title">删除此注释？</div>
             <div class="note-overlay-pop-actions">
                 <button class="note-overlay-btn" id="note-overlay-confirm-cancel">取消</button>
                 <button class="note-overlay-btn note-overlay-btn-danger" id="note-overlay-confirm-ok">删除</button>
@@ -1047,18 +1032,18 @@
         sidebar.id = 'note-overlay-sidebar';
         sidebar.innerHTML = `
             <div class="note-overlay-tabs" id="note-overlay-tabs">
-                <button class="note-overlay-tab active" data-tab="text">文本批注<span class="note-overlay-tab-badge" id="note-overlay-text-count"></span></button>
-                <button class="note-overlay-tab" data-tab="status">状态批注<span class="note-overlay-tab-badge" id="note-overlay-status-count"></span></button>
+                <button class="note-overlay-tab active" data-tab="text">文本注释<span class="note-overlay-tab-badge" id="note-overlay-text-count"></span></button>
+                <button class="note-overlay-tab" data-tab="status">状态注释<span class="note-overlay-tab-badge" id="note-overlay-status-count"></span></button>
             </div>
             <div class="note-overlay-toolbar" id="note-overlay-toolbar">
                 <button id="note-overlay-select-btn" class="note-overlay-btn note-overlay-btn-primary" style="display:none;" title="选择元素">${ICONS.cursor}</button>
-                <button id="note-overlay-add-btn" class="note-overlay-btn note-overlay-btn-success" style="display:none;" title="添加批注">${ICONS.plus}</button>
+                <button id="note-overlay-add-btn" class="note-overlay-btn note-overlay-btn-success" style="display:none;" title="添加注释">${ICONS.plus}</button>
                 <button id="note-overlay-status-add-btn" class="note-overlay-btn note-overlay-btn-success" style="display:none;" title="添加状态">${ICONS.plus}</button>
                 <button id="note-overlay-status-restore-btn" class="note-overlay-btn note-overlay-toolbar-right" style="display:none;" title="还原状态">${ICONS.restore}</button>
                 <button id="note-overlay-height-btn" class="note-overlay-btn" title="切换卡片高度">${ICONS.heightFull}</button>
             </div>
             <div id="note-overlay-list">
-                <div class="note-overlay-empty">暂无批注</div>
+                <div class="note-overlay-empty">暂无注释</div>
             </div>
             <div id="note-overlay-status"></div>
         `;
@@ -1072,7 +1057,7 @@
             <div class="note-overlay-modal-box" id="note-overlay-modal-box">
                 <div class="note-overlay-modal-header" id="note-overlay-modal-header">
                     <span class="note-overlay-card-number" id="note-overlay-modal-num" style="display:none;">1</span>
-                    <span class="note-overlay-modal-title">批注</span>
+                    <span class="note-overlay-modal-title">注释</span>
                     <button class="note-overlay-btn" id="note-overlay-modal-edit-btn">编辑</button>
                     <button class="note-overlay-btn note-overlay-btn-text" id="note-overlay-modal-close-btn" title="关闭">${ICONS.close}</button>
                 </div>
@@ -1108,7 +1093,7 @@
         toggleBtn.addEventListener('click', toggleSidebar);
         document.getElementById('note-overlay-select-btn').addEventListener('click', toggleSelectMode);
         document.getElementById('note-overlay-add-btn').addEventListener('click', function() {
-            showInputPopAt(null, '添加批注');
+            showInputPopAt(null, '添加注释');
         });
         document.getElementById('note-overlay-status-add-btn').addEventListener('click', addStatusNote);
         document.getElementById('note-overlay-status-restore-btn').addEventListener('click', restoreActiveStatus);
@@ -1249,7 +1234,7 @@
         return { open: false, valid: false };
     }
 
-    // 展开/折叠时，批注按钮与布局模式按钮一起移动
+    // 展开/折叠时，注释按钮与布局模式按钮一起移动
     function updateToggleShift() {
         const sidebar = document.getElementById('note-overlay-sidebar');
         const toggle = document.getElementById('note-overlay-toggle');
@@ -1260,7 +1245,7 @@
         const open = sidebar.classList.contains('open');
         toggle.style.display = hideToggle ? 'none' : '';
         toggle.classList.toggle('shifted', open);
-        toggle.title = open ? '折叠批注栏' : '展开批注栏';
+        toggle.title = open ? '折叠注释栏' : '展开注释栏';
         modeBtn.classList.toggle('shifted', open);
         modeBtn.style.display = open ? 'flex' : 'none';
         resizer.classList.toggle('show', open);
@@ -1301,14 +1286,14 @@
             rebuildMarkers(true);
             restartMarkerFadeTimer();
         }
-        setStatus(getLayoutMode() === 'scale' ? '已切换为等比缩放模式' : '已切换为压宽模式');
+        setStatus(getLayoutMode() === 'scale' ? '已切换为推挤模式' : '已切换为覆盖模式');
     }
 
     function updateModeBtn() {
         const btn = document.getElementById('note-overlay-mode-btn');
         const scale = getLayoutMode() === 'scale';
         btn.innerHTML = scale ? ICONS.compress : ICONS.scale;
-        btn.title = scale ? '切换压宽模式' : '切换等比模式';
+        btn.title = scale ? '切换覆盖模式' : '切换推挤模式';
     }
 
     // 应用布局：compress = 页面被压缩宽度；scale = 按窗口等比例缩小（字号同步缩放）
@@ -1344,7 +1329,7 @@
 
         if (frame) frame.classList.add('note-overlay-preview-active');
 
-        // 等比缩放模式：inner 按整窗口宽度渲染，再整体缩小到剩余宽度
+        // 推挤模式：inner 按整窗口宽度渲染，再整体缩小到剩余宽度
         const k = Math.max(0.1, Math.min(1, (vw - sw) / vw));
         main.style.flex = '0 0 auto';
         main.style.width = (vw - sw) + 'px';
@@ -1397,7 +1382,7 @@
         setCardHeightClass();
     }
 
-    // ========== 鼠标旁浮窗（批注输入） ==========
+    // ========== 鼠标旁浮窗（注释输入） ==========
     function positionPop(pop, clientX, clientY) {
         const rect = pop.getBoundingClientRect();
         const m = 12;
@@ -1415,7 +1400,7 @@
 
     function showInputPopAt(clientX, clientY, title) {
         const pop = document.getElementById('note-overlay-pop');
-        document.getElementById('note-overlay-pop-title').textContent = title || '添加批注';
+        document.getElementById('note-overlay-pop-title').textContent = title || '添加注释';
         pop.classList.add('show');
         if (clientX != null) {
             positionPop(pop, clientX, clientY);
@@ -1430,7 +1415,7 @@
     function hideInputPop() {
         document.getElementById('note-overlay-pop').classList.remove('show');
         document.getElementById('note-overlay-pop-textarea').value = '';
-        document.getElementById('note-overlay-pop-textarea').placeholder = '输入批注内容...';
+        document.getElementById('note-overlay-pop-textarea').placeholder = '输入注释内容...';
         clearSelectionHighlight();
         selectedElement = null;
         exitSelectMode();
@@ -1474,14 +1459,14 @@
         } catch (e) { setStatus(e.message); }
     }
 
-    // 浮窗放大为大窗编辑（新建批注）
+    // 浮窗放大为大窗编辑（新建注释）
     function zoomInputPop() {
         const ta = document.getElementById('note-overlay-pop-textarea');
         draftContent = ta.value;
         draftSelectors = selectedElement ? generateSelectors(selectedElement) : [];
         document.getElementById('note-overlay-pop').classList.remove('show');
         ta.value = '';
-        ta.placeholder = '输入批注内容...';
+        ta.placeholder = '输入注释内容...';
         exitSelectMode(true); // 保留元素选中高亮
         openModal(null, true);
     }
@@ -1681,9 +1666,9 @@
             return;
         }
 
-        showInputPopAt(e.clientX, e.clientY, '添加批注');
+        showInputPopAt(e.clientX, e.clientY, '添加注释');
         const textarea = document.getElementById('note-overlay-pop-textarea');
-        textarea.placeholder = '为选中的元素添加批注...';
+        textarea.placeholder = '为选中的元素添加注释...';
         textarea.focus();
     }
 
@@ -1804,7 +1789,7 @@
         return { left: left, top: top };
     }
 
-    // 等比缩放模式下序号标记的缩放系数
+    // 推挤模式下序号标记的缩放系数
     function getMarkerScale() {
         const sidebar = document.getElementById('note-overlay-sidebar');
         if (!sidebar || !sidebar.classList.contains('open')) return 1;
@@ -1813,7 +1798,7 @@
         return (vw - getSidebarWidth()) / vw;
     }
 
-    // ========== 提交批注（追加到末尾） ==========
+    // ========== 提交注释（追加到末尾） ==========
     async function submitNote() {
         const textarea = document.getElementById('note-overlay-pop-textarea');
         const content = textarea.value.trim();
@@ -1826,7 +1811,7 @@
         const selectors = selectedElement ? generateSelectors(selectedElement) : [];
 
         const note = {
-            title: stripHtml(content).split('\n')[0] || '批注',
+            title: stripHtml(content).split('\n')[0] || '注释',
             content: content,
             selectors: selectors,
             filename: getPageFilename(),
@@ -1868,14 +1853,14 @@
         const currentPageStatus = getCurrentPageStatusNotes();
         const sidebar = document.getElementById('note-overlay-sidebar');
         if (!preventAutoCollapse && !isWritable && sidebar && currentPageNotes.length + currentPageStatus.length === 0 && sidebar.classList.contains('open')) {
-            // 无当前页面批注时自动收起，但不改写用户之前的展开状态缓存。
+            // 无当前页面注释时自动收起，但不改写用户之前的展开状态缓存。
             sidebar.classList.remove('open');
             updateToggleShift();
             applyLayout();
         }
 
         if (activeTab === 'status') {
-            list.innerHTML = currentPageStatus.length ? currentPageStatus.map((n, i) => renderStatusCard(n, i + 1)).join('') : '<div class="note-overlay-empty">暂无状态批注</div>';
+            list.innerHTML = currentPageStatus.length ? currentPageStatus.map((n, i) => renderStatusCard(n, i + 1)).join('') : '<div class="note-overlay-empty">暂无状态注释</div>';
             const statusCount = document.getElementById('note-overlay-status-count');
             if (statusCount) { statusCount.textContent = currentPageStatus.length; statusCount.classList.toggle('show', currentPageStatus.length > 0); }
             bindCardEvents();
@@ -1884,7 +1869,7 @@
         }
 
         if (currentPageNotes.length === 0) {
-            list.innerHTML = '<div class="note-overlay-empty">暂无批注</div>';
+            list.innerHTML = '<div class="note-overlay-empty">暂无注释</div>';
         } else {
             let html = '';
             currentPageNotes.forEach((note, index) => {
@@ -1925,14 +1910,16 @@
 
     function renderCard(note, number) {
         const hasElementLink = getNoteSelectors(note).length > 0;
-        const actionsHtml = isWritable ? `
+        const actionsHtml = `
             <div class="note-overlay-card-actions">
                 <button class="note-overlay-btn note-overlay-btn-text" data-action="zoom" data-id="${note.id}" title="放大查看">${ICONS.zoom}</button>
-                <button class="note-overlay-btn note-overlay-btn-text" data-action="link" data-id="${note.id}" title="元素链接">${ICONS.link}</button>
-                <button class="note-overlay-btn note-overlay-btn-text" data-action="edit" data-id="${note.id}" title="编辑">${ICONS.edit}</button>
-                <button class="note-overlay-btn note-overlay-btn-text" data-action="delete" data-id="${note.id}" title="删除" style="color:${COLORS.danger};">${ICONS.del}</button>
+                ${isWritable ? `
+                    <button class="note-overlay-btn note-overlay-btn-text" data-action="link" data-id="${note.id}" title="元素链接">${ICONS.link}</button>
+                    <button class="note-overlay-btn note-overlay-btn-text" data-action="edit" data-id="${note.id}" title="编辑">${ICONS.edit}</button>
+                    <button class="note-overlay-btn note-overlay-btn-text" data-action="delete" data-id="${note.id}" title="删除" style="color:${COLORS.danger};">${ICONS.del}</button>
+                ` : ''}
             </div>
-        ` : '';
+        `;
 
         return `
             <div class="note-overlay-card" data-id="${note.id}" ${getNoteSelectors(note).length > 0 ? 'data-has-selector="true"' : ''}>
@@ -2060,14 +2047,15 @@
             });
         });
 
-        document.querySelectorAll('[data-action]').forEach(btn => {
+        // 只绑定注释卡片内的操作按钮，避免劫持页面自身的 [data-action] 元素
+        document.querySelectorAll('.note-overlay-card-actions [data-action]').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const action = this.dataset.action;
                 const id = this.dataset.id;
                 if (action === 'delete') {
                     const title = document.querySelector('#note-overlay-confirm-pop .note-overlay-pop-title');
-                    if (title) title.textContent = '删除此批注？';
+                    if (title) title.textContent = '删除此注释？';
                     pendingDeleteType = 'text';
                     pendingDeleteId = id;
                     showConfirmPop(e.clientX, e.clientY);
@@ -2167,7 +2155,7 @@
         });
     }
 
-    // 拖拽排序：只调整当前页面批注的顺序，其余页面保持不变
+    // 拖拽排序：只调整当前页面注释的顺序，其余页面保持不变
     async function reorderNotes(fromId, toId, pos) {
         const pageNotes = getCurrentPageNotes();
         const from = pageNotes.findIndex(n => n.id === fromId);
@@ -2468,16 +2456,8 @@
         });
     }
 
-    // 序号标记跟随元素：main 滚动时重新定位（内层 transform 缩放时用 getLayoutOffset 计算布局偏移）
-    function hookMainScroll() {
-        const scrollEl = document.getElementById('note-overlay-main');
-        if (!scrollEl) return;
-        scrollEl.addEventListener('scroll', scheduleMarkerReposition, { passive: true });
-        const frame = document.getElementById('note-overlay-preview-frame');
-        if (frame) frame.addEventListener('scroll', scheduleMarkerReposition, { passive: true });
-        window.addEventListener('scroll', scheduleMarkerReposition, { passive: true });
-    }
-    hookMainScroll();
+    // scroll 不冒泡，捕获阶段监听可截获所有后代滚动容器，且不受 main/frame 创建时机影响
+    document.addEventListener('scroll', scheduleMarkerReposition, { capture: true, passive: true });
 
     // ========== 大窗（查看 / 富文本编辑 / 新建草稿） ==========
     function openModal(id, editMode) {
@@ -2565,10 +2545,10 @@
             setStatus('内容为空');
             return;
         }
-        const title = stripHtml(content).split('\n')[0] || '批注';
+        const title = stripHtml(content).split('\n')[0] || '注释';
 
         if (modalNoteId) {
-            // 更新已有批注
+            // 更新已有注释
             try {
                 const res = await fetch(TEXT_ANNOTATIONS_API + '/' + modalNoteId, {
                     method: 'PUT',
@@ -2592,7 +2572,7 @@
                 setStatus('保存失败: ' + e.message);
             }
         } else {
-            // 新建批注（来自浮窗放大）
+            // 新建注释（来自浮窗放大）
             if (!isWritable) {
                 setStatus('当前为只读模式，无法保存');
                 return;
@@ -2649,7 +2629,39 @@
         badge.classList.add('show');
     }
 
-    // ========== 数据加载 ==========
+    // ========== 数据加载 ========== 
+    // 在 file:// 页面中通过浏览器插件读取同目录 JSON。插件未安装时返回 null，
+    // 这样在线 API 和普通 http 页面仍沿用原有 fetch 行为。
+    /* function fetchLocalJsonViaPlugin(url) {
+        return new Promise((resolve, reject) => {
+            if (!window.postMessage) return reject(new Error('插件桥接不可用'));
+            const id = 'note-overlay-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+            // 未安装插件时不要阻塞页面初始化；安装插件的正常响应通常是毫秒级。
+            const timeout = setTimeout(() => {
+                window.removeEventListener('message', listener);
+                reject(new Error('本地 JSON 插件响应超时'));
+            }, 0);
+            function listener(event) {
+                const data = event.data;
+                if (!data || data.type !== 'NOTE_OVERLAY_FETCH_RESPONSE' || data.id !== id) return;
+                clearTimeout(timeout);
+                window.removeEventListener('message', listener);
+                if (data.error) reject(new Error(data.error));
+                else resolve(data.result);
+            }
+            window.addEventListener('message', listener);
+            window.postMessage({ type: 'NOTE_OVERLAY_FETCH_REQUEST', id, url }, '*');
+        });
+    }
+    */
+
+    async function readLocalJson(url) {
+        // 已停用浏览器插件桥接，统一使用原生 fetch。
+        const response = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now());
+        if (!response.ok) throw new Error('本地 JSON HTTP ' + response.status);
+        return response.json();
+    }
+
     async function loadNotes() {
         const modeBtn = document.getElementById('note-overlay-mode-btn');
         const toggleBtn = document.getElementById('note-overlay-toggle');
@@ -2667,19 +2679,20 @@
         } catch (e) {
             isWritable = false;
             try {
-                const staticRes = await fetch(TEXT_ANNOTATIONS_FILE + '?t=' + Date.now());
-                if (staticRes.ok) {
-                    const data = await staticRes.json();
-                    notes = Array.isArray(data) ? data : [];
-                }
+                const data = await readLocalJson(TEXT_ANNOTATIONS_FILE);
+                notes = Array.isArray(data) ? data : [];
             } catch (e2) {
                 notes = [];
             }
         }
         try {
-            const statusRes = await fetch(isWritable ? STATUS_ANNOTATIONS_API : STATUS_ANNOTATIONS_FILE + '?t=' + Date.now());
-            if (statusRes.ok) {
+            if (isWritable) {
+                const statusRes = await fetch(STATUS_ANNOTATIONS_API);
+                if (!statusRes.ok) throw new Error('状态 API 不可用');
                 const statusData = await statusRes.json();
+                statusNotes = Array.isArray(statusData) ? statusData : [];
+            } else {
+                const statusData = await readLocalJson(STATUS_ANNOTATIONS_FILE);
                 statusNotes = Array.isArray(statusData) ? statusData : [];
             }
         } catch (e) {
@@ -2716,8 +2729,12 @@
         return div.innerHTML;
     }
 
-    // Escape 关闭大窗
+    // ========== 快捷键 ==========
     document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'N') {
+            e.preventDefault();
+            toggleSidebar();
+        }
         if (e.key === 'Escape') {
             closeModal();
         }
@@ -2754,7 +2771,7 @@
         const openState = loadOpenState();
         const sidebar = document.getElementById('note-overlay-sidebar');
         const hasNotes = getCurrentPageNotes().length + getCurrentPageStatusNotes().length > 0;
-        // 有后端时即使当前页面没有批注也保留面板；只读模式才按批注数量自动折叠。
+        // 有后端时即使当前页面没有注释也保留面板；只读模式才按注释数量自动折叠。
         const shouldOpen = openState.valid ? openState.open : (isWritable || hasNotes);
         if (shouldOpen) {
             sidebar.classList.add('open');
@@ -2763,7 +2780,7 @@
             }
         }
         renderNotes();
-        // 先根据当前模式和批注数量完成折叠，再更新按钮可见性，避免初始化时闪现等比例按钮。
+        // 先根据当前模式和注释数量完成折叠，再更新按钮可见性，避免初始化时闪现等比例按钮。
         updateToggleShift();
         applyLayout();
         // 此时右栏和画布尺寸已经确定，恢复预览可见性时不会经过未缩放状态。
