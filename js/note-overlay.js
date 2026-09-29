@@ -1716,13 +1716,16 @@
             selectors.push('#' + el.id);
         }
 
+        // 同标签计数对应 nth-of-type（主），全兄弟计数对应 nth-child（兜底），两者语义不同不可混用
         const path = [];
+        const pathByChild = [];
         let current = el;
         while (current && current !== document.body && current !== document.documentElement) {
             let selector = current.tagName.toLowerCase();
+            let selectorByChild = selector;
             if (current.id) {
-                selector = '#' + current.id;
-                path.unshift(selector);
+                path.unshift('#' + current.id);
+                pathByChild.unshift('#' + current.id);
                 break;
             } else {
                 const parent = current.parentElement;
@@ -1730,7 +1733,9 @@
                     const siblings = Array.from(parent.children).filter(c => c.tagName === current.tagName);
                     if (siblings.length > 1) {
                         const index = siblings.indexOf(current) + 1;
-                        selector += ':nth-child(' + index + ')';
+                        selector += ':nth-of-type(' + index + ')';
+                        const childIndex = Array.from(parent.children).indexOf(current) + 1;
+                        selectorByChild += ':nth-child(' + childIndex + ')';
                     }
                 }
                 if (current.className && typeof current.className === 'string') {
@@ -1738,15 +1743,21 @@
                         .filter(c => c && !c.startsWith('note-overlay-'));
                     if (classes.length > 0) {
                         selector += '.' + classes[0];
+                        selectorByChild += '.' + classes[0];
                     }
                 }
             }
             path.unshift(selector);
+            pathByChild.unshift(selectorByChild);
             current = current.parentElement;
             if (path.length >= 5) break;
         }
         if (path.length > 0) {
             selectors.push(path.join(' > '));
+            const selectorByChild = pathByChild.join(' > ');
+            if (selectorByChild !== selectors[selectors.length - 1]) {
+                selectors.push(selectorByChild);
+            }
         }
 
         const tagPath = [];
