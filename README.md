@@ -1,6 +1,6 @@
 # HTML 原型图批注工具（note-overlay）
 
-> **English**: A lightweight annotation tool for HTML pages and prototypes. Include a single script (`note-overlay.js`) in any HTML page to get a right-side annotation sidebar — select elements, attach rich-text notes, save and restore page states. Annotation data lives in standalone JSON files, leaving your prototype code untouched. No build step, no dependencies. [Live demo](https://jionghang.github.io/html-annotator/example.html) (read-only).
+> A lightweight annotation tool for HTML pages and prototypes. Include a single script (`note-overlay.js`) in any HTML page to get a right-side annotation sidebar — select elements, attach rich-text notes, save and restore page states. Annotation data lives in standalone JSON files, leaving your prototype code untouched. No build step, no dependencies. [Live demo](https://jionghang.github.io/html-annotator/example.html) (read-only).
 
 Vibe coding 让 HTML 原型图的产出变得很快，但给原型图做标注并不方便：想在页面某个元素旁写一句说明或修改意见，缺少直观的可视化批注方式；哪怕只是简单的标注，也要回到对话框里向大模型描述位置、让它改代码——沟通成本高，等待时间长，还可能引入意外改动。
 
